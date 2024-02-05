@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <ProjectReference Include="..\SharedInfrastructure\SharedInfrastructure.csproj" />
+    <ProjectReference Include="..\DocumentsGeneration.Temporal\DocumentsGeneration.Temporal.csproj" />
+  </ItemGroup>
+</Project>

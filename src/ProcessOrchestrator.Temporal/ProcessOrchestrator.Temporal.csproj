@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\CollectionBooking.Temporal\CollectionBooking.Temporal.csproj" />
+    <ProjectReference Include="..\Manifestation.Temporal\Manifestation.Temporal.csproj" />
+    <ProjectReference Include="..\SharedInfrastructure\SharedInfrastructure.csproj" />
+    <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CarrierIntegration.Temporal\CarrierIntegration.Temporal.csproj" />
+    <ProjectReference Include="..\DocumentsGeneration.Temporal\DocumentsGeneration.Temporal.csproj" />
+  </ItemGroup>
+</Project>

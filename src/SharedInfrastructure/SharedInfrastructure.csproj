@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+    <PackageReference Include="Polly" />
+    <PackageReference Include="Polly.Contrib.WaitAndRetry" />
+    <PackageReference Include="Temporalio" />
+    <PackageReference Include="Temporalio.Extensions.Hosting" />
+  </ItemGroup>
+</Project>

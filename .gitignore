@@ -1,0 +1,79 @@
+# VisualStudio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.ionide/
+
+# Visual Studio cache/options directory
+.vs/
+
+# VisualStudio user-specific files
+*.suo
+*.user
+*.userosscache
+*.userprefs
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+# MSTest test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# NUNIT
+*.VisualState.xml
+TestResult.xml
+
+# SpecFlow
+*.feature.cs
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# ReSharper is a .NET coding add-in
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# DotCover is a Code Coverage Tool
+*.dotCover
+
+# Visual Studio code coverage results
+*.coverage
+*.coveragexml
+
+# NuGet Packages
+*.nupkg
+*.nuget.props
+*.nuget.targets
+
+# Docker Publish
+publish/
+
+# NCrunch
+*.ncrunchproject
+*.ncrunchsolution
+.*crunch*.local.xml
+nCrunchTemp_*
+_NCrunch_*/
+
+# Various temp files
+.DS_Store
+._.DS_Store
+
+# direnv
+.env
+.envrc

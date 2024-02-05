@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\CarrierIntegration.Temporal\CarrierIntegration.Temporal.csproj" />
+    <ProjectReference Include="..\SharedInfrastructure\SharedInfrastructure.csproj" />
+    <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />
+  </ItemGroup>
+</Project>

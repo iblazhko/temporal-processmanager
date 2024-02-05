@@ -1,0 +1,173 @@
+version: "3.8"
+
+services:
+  # Infrastructure
+
+  postgres:
+    image: postgres:16.1
+    environment:
+      - POSTGRES_PASSWORD=temporal
+      - POSTGRES_USER=temporal
+    networks:
+      - devnet
+    expose:
+      - 5432
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  elasticsearch:
+    image: elasticsearch:8.12.0
+    environment:
+      - cluster.routing.allocation.disk.threshold_enabled=true
+      - cluster.routing.allocation.disk.watermark.low=512mb
+      - cluster.routing.allocation.disk.watermark.high=256mb
+      - cluster.routing.allocation.disk.watermark.flood_stage=128mb
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
+      - xpack.security.enabled=false
+    networks:
+      - devnet
+    expose:
+      - 9200
+    ports:
+      - 9200:9200
+    volumes:
+      - elasticsearch-data:/var/lib/elasticsearch/data
+
+  # Temporal
+
+  temporal:
+    image: temporalio/auto-setup:1.22.4
+    depends_on:
+      - postgres
+      - elasticsearch
+    environment:
+      - DB=postgresql
+      - DB_PORT=5432
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporal
+      - POSTGRES_SEEDS=postgres
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yaml
+      - ENABLE_ES=true
+      - ES_SEEDS=elasticsearch
+      - ES_VERSION=v7
+    networks:
+      - devnet
+    ports:
+      - 7233:7233
+    volumes:
+      - ./temporal-dynamicconfig:/etc/temporal/config/dynamicconfig
+
+  temporal-admin-tools:
+    image: temporalio/admin-tools:1.22.4
+    depends_on:
+      - temporal
+    environment:
+      - TEMPORAL_CLI_ADDRESS=temporal:7233
+    networks:
+      - devnet
+    stdin_open: true
+    tty: true
+
+  temporal-ui:
+    image: temporalio/ui:2.21.4
+    depends_on:
+      - temporal
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+      - TEMPORAL_NOTIFY_ON_NEW_VERSION=false
+    networks:
+      - devnet
+    ports:
+      - 8080:8080
+
+  # Main Application
+
+  app-orchestrator:
+    depends_on:
+      - temporal
+    build:
+      context: ./src/ProcessOrchestrator.Host
+      dockerfile: process-orchestrator.Dockerfile
+    environment:
+      - ShipmentProcess__ApiBaseUrl=http://*:43210
+      - ShipmentProcess__Temporal__ServerAddress=temporal:7233
+      - ShipmentProcess__WaitForInfrastructureOnStartup=true
+    ports:
+      - 43210:43210
+    networks:
+      - devnet
+
+  app-manifestation:
+    depends_on:
+      - temporal
+    build:
+      context: ./src/Manifestation.Host
+      dockerfile: manifestation.Dockerfile
+    environment:
+      - ShipmentProcess__ApiBaseUrl=http://*:43211
+      - ShipmentProcess__Temporal__ServerAddress=temporal:7233
+      - ShipmentProcess__WaitForInfrastructureOnStartup=true
+    ports:
+      - 43211:43211
+    networks:
+      - devnet
+
+  app-documents:
+    depends_on:
+      - temporal
+    build:
+      context: ./src/DocumentsGeneration.Host
+      dockerfile: documents-generation.Dockerfile
+    environment:
+      - ShipmentProcess__ApiBaseUrl=http://*:43212
+      - ShipmentProcess__Temporal__ServerAddress=temporal:7233
+      - ShipmentProcess__WaitForInfrastructureOnStartup=true
+    ports:
+      - 43212:43212
+    networks:
+      - devnet
+
+  app-collection-booking:
+    depends_on:
+      - temporal
+    build:
+      context: ./src/CollectionBooking.Host
+      dockerfile: collection-booking.Dockerfile
+    environment:
+      - ShipmentProcess__ApiBaseUrl=http://*:43213
+      - ShipmentProcess__Temporal__ServerAddress=temporal:7233
+      - ShipmentProcess__WaitForInfrastructureOnStartup=true
+    ports:
+      - 43213:43213
+    networks:
+      - devnet
+
+  app-carrier-integration:
+    depends_on:
+      - temporal
+    build:
+      context: ./src/CarrierIntegration.Host
+      dockerfile: carrier-integration.Dockerfile
+    environment:
+      - ShipmentProcess__ApiBaseUrl=http://*:43220
+      - ShipmentProcess__Temporal__ServerAddress=temporal:7233
+      - ShipmentProcess__WaitForInfrastructureOnStartup=true
+    ports:
+      - 43220:43220
+    networks:
+      - devnet
+
+
+volumes:
+  postgres-data:
+    driver: local
+  elasticsearch-data:
+    driver: local
+
+networks:
+  devnet:
+    driver: bridge

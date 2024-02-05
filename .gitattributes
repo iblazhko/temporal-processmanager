@@ -1,0 +1,41 @@
+* text=auto
+*.conf          text
+*.config        text
+*.cs            text
+*.csproj        text
+*.css           text
+*.csv           text
+*.Dockerfile    text
+*.doc           binary
+*.docx          binary
+*.DotSettings   text
+*.editorconfig  text
+*.env           text
+*.feature       text
+*.fs            text
+*.fsproj        text
+*.fsx           text
+*.gitattributes text
+*.gitignore     text
+*.html          text
+*.ico           binary
+*.jar           binary
+*.jpeg          binary
+*.jpg           binary
+*.js            text
+*.json          text
+*.markdown      text
+*.md            text
+*.png           binary
+*.ps1           text eol=lf
+*.psd1          text eol=lf
+*.psm1          text eol=lf
+*.sh            text eol=lf
+*.sln           text
+*.sql           text
+*.svg           text
+*.targets       text
+*.txt           text
+*.xml           text
+*.yaml          text
+*.yml           text

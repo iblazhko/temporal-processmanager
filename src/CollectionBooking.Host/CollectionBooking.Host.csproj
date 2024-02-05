@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <ProjectReference Include="..\CollectionBooking.Temporal\CollectionBooking.Temporal.csproj" />
+    <ProjectReference Include="..\SharedInfrastructure\SharedInfrastructure.csproj" />
+  </ItemGroup>
+</Project>
