@@ -1,7 +1,7 @@
 namespace SharedKernel.DTOs;
 
-// It is expected that any DTO can be serialized to / deserialized from JSON without
-// any customizations in System.Text.Json.JsonSerializer.
+// In this example it is expected that any DTO can be serialized to / deserialized from JSON
+// without any customizations in JSON serializer.
 //
 // In practice, this means that we can use primitive types (bool/int/double/decimal/string), arrays, dictionaries
 // with primitive key type, and classes/records, but cannot use anything more advanced. In particular, we cannot use
@@ -10,7 +10,10 @@ namespace SharedKernel.DTOs;
 // For enums we use string representation of .net enum member (name, not the underlying value).
 // For date and time we use string representation in ISO 8601 format.
 //
-// [Product types](https://en.wikipedia.org/wiki/Product_type) are represented as a .NET class or record;
+// [Product types](https://en.wikipedia.org/wiki/Product_type) are represented as a .NET class or record, shape of
+// DTO can match shape of the domain model, but types of the DTO properties may need to be adjusted to satisfy
+// restrictions described above.
+//
 // [Sum types](https://en.wikipedia.org/wiki/Tagged_union) a.k.a. discriminated unions can be represented using
 // following structure (note that discrimination is not enforced):
 //
@@ -40,7 +43,7 @@ namespace SharedKernel.DTOs;
 //
 // DTOs are simple data containers and should not have any business logic. Related to that, DTOs should allow
 // initialization from incomplete / semantically invalid JSON, DTOs should only define *shape* of the data,
-// but should not have any restrictions about the data *content*. Any validations belong to domain model and
+// but should not have any restrictions about the data *content* or *format*. Any validations belong to domain model and
 // should be done separately, in a separate DTO -> domain model mapper, or in a separate validator.
 
 #nullable disable
@@ -55,7 +58,7 @@ public abstract record ActivityResult<TSuccess, TFailure>
     public TFailure Failure { get; init; }
 }
 
-// Represents an empty result
+// Represents an empty input / output
 public record Unit;
 
 #endregion
@@ -105,7 +108,7 @@ public record ShipmentCollectionBooking
 // Anywhere apart from the top level orchestrator it is safe to assume the request is valid in general.
 // 1st step in the top level orchestrator workflow is to validate it and fail immediately if the request
 // is not valid in general (ShipmentId is specified, and we have 1 or 2 shipment legs).
-// Activities / child workflows may implement additional validations if needed.
+// Activities / child workflows may implement additional (more restrictive) validations if needed.
 public record ShipmentProcessRequest
 {
     public string ShipmentId { get; init; }
@@ -208,8 +211,7 @@ public record ShipmentDocumentsGenerationResult
 
 public record ShipmentLegCollectionBookingRequest : ShipmentLegManifestationRequest
 {
-    // To avoid dependency on system time in activity and make it effectively a pure function,
-    // passing current time explicitly
+    // To avoid dependency on system time in activity, passing current time explicitly
     public string UtcNow { get; set; }
 }
 
