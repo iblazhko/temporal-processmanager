@@ -7,17 +7,17 @@ Follow-up to https://github.com/iblazhko/eventsourced-processmanager/
 Refer to the [README](https://github.com/iblazhko/eventsourced-processmanager/blob/main/README.md)
 there for the description of motivation and business domain.
 
-While implementing a durable long-running process manager can be a lot of fun,
-in a production development environment for most companies it does not makes
-much sense to spend significant resources on implementing and maintaining
-such infrastructure code; there are multiple out of the box solutions available
-that allow application developers to focus on writing code that implements
-business requirements.
+While implementing a durable long-running process from scratch can be
+a lot of fun, in a production development environment for most companies
+it does not makes much sense to spend significant resources on implementing
+and maintaining such infrastructure code. There are multiple out of the box
+solutions available that allow application developers to focus on writing code
+that implements business requirements.
 
 This example explores an option of using [Temporal.io](https://temporal.io/)
 as processing infrastructure.
 
-Temporal is an implementation of a Durable Execution concept. In Temporal's
+Temporal is an implementation of *Durable Execution* concept. In Temporal's
 own words
 
 > Durable execution systems run code in a way that persists each step the code
@@ -88,6 +88,13 @@ shipment id:
   * id ending with `2` triggers process that fails at collection booking stage
   * otherwise the process should complete successfully straight away
 
+> Note that while from a business domain perspective outcome may be a failure
+> (shipment manifestation failed, collection booking failed etc), but from the
+> Temporal's point of view corresponding workflow is completed successfully,
+> i.e. all the steps in the process were executed, and there were no
+> unhandled exceptions. Hence all the workflows are expected to be marked as
+> "Completed" in the Termporal dashboard once the process finished.
+
 Example:
 
 ```bash
@@ -117,6 +124,49 @@ Success:
 Failure:
 
 ![Workflow Failure](./doc/Workflow-Result_Failure.png)
+
+## Comparing with custom Event Sourced implementation
+
+While both Event Sourcing and Durable Execution can help with implementing a
+durable long-running process, these are two different concepts, and they focus
+on different aspects.
+
+Durable Execution concepts are better aligned with the *process* aspect;
+Event Sourcing is about representing state as a sequence of events, and that
+can be applied both to the business domain and to the techincal / infrastructure
+domain.
+
+Temporal uses event sourcing internally, however from an application developer
+perspective it is not a direct replacement of event sourcing for business domain
+events:
+
+1. Temporal SDK isolates this aspect from application code that implements
+  workflows and activities
+2. Temporal [workflow events](https://docs.temporal.io/workflows#event-history)
+  are aligned with the Temporal concepts, not with application domain concepts -
+  we may see events like `WorkflowExecutionStarted` or `WorkflowTaskScheduled`
+  in workflow events history
+3. Temporal workflows may or may not be aligned with business domain entities.
+
+OTOH, the record of the fact that Temporal activity or workflow completed can be
+treated as a business domain event if we squint a little, although it may be
+less explicit compared to a dedicated domain event stored in an entity event
+stream.
+
+Custom durable process implementation that uses event sourcing may be better
+aligned with the business domain but requires much more investment in
+implementing infrastructure aspects like retries and timeouts; also defining and
+maintaining the process definition as a whole may be non trivial. And here we
+may have a problem opposite to the one described above - in a custom event
+sourced implementation we may need events not directly related to the business
+domain to implement technical aspects.
+
+Using Temporal in conjunction with event sourced aggregates is out of the scope
+of this example, but in principle process steps implementation, in particular
+Activities implementation, can invoke even sourced aggregates or publish domain
+events if we e.g. need to notify other systems or components about the
+process progress. That would allow a better separation between technical aspects
+of implementing a durable process and specifics of a business domain.
 
 ## Conclusions
 
@@ -148,26 +198,30 @@ Points below are not a criticism of Temporal as such, just some observations.
 
 * At the moment, .NET support in Temporal is not as good as for other languages
   (e.g. no tutorials and no 101 course), but documentation is improving and
-  the Temporal .NET SDK seems to be stable already
+  the Temporal .NET SDK seems to be stable already.
 * Determinism is expected from a workflow implementation code, but it is not
   enforced or validated (to the best of my knowledge). Writing deterministic
   code is quite natural to someone familiar with functional programming
   concepts, but if an application developer is coming from a procedural / OOP
   background, some adaptation may be required.
-* Temporal is very chatty by design, this may introduce latency. Production
-  application would need to evaluate that
+* Temporal is very chatty by design, activities input/output and state at each
+  checkpoint are serialised and persisted in the workflow's
+  [events history](https://docs.temporal.io/workflows#event-history);
+  large number of activities in a workflow may introduce latency and increase
+  storage space requirements. Production application would need to evaluate that
   * all process triggers can be handled within the expected time frame
-  * storage requirements for Temporal are reasonable
+  * storage requirements for Temporal are reasonable.
 
 Also, blog post ["Common Pitfalls with Durable Execution Frameworks"](https://medium.com/@cgillum/common-pitfalls-with-durable-execution-frameworks-like-durable-functions-or-temporal-eaf635d4a8bb)
 describes concerns applicable to Durable Execution in general.
 
 ### Alternatives
 
-There are other libraries available that implement Durable Execution concept:
+There are other frameworks available that implement Durable Execution concept:
 
-* [Azure Durable Functions](https://learn.microsoft.com/en-us/azure/azure-functions/durable/)
-* [Restate](https://restate.dev/)
-* [Convex](https://www.convex.dev/)
-* [Rama](https://redplanetlabs.com/)
-* [LittleHorse](https://littlehorse.dev/)
+* [Azure Durable Functions](https://learn.microsoft.com/en-us/azure/azure-functions/durable/) (.NET, Python, JavaScript)
+* [Convex](https://www.convex.dev/) (TypeScript)
+* [LittleHorse](https://littlehorse.dev/) (Go, Java, Python; .NET support coming in 0.6.0)
+* [Orkes](https://orkes.io/) (.NET, Go, Java, Clojure, Python, JavaScript)
+* [Rama](https://redplanetlabs.com/) (Java, Clojure)
+* [Restate](https://restate.dev/) (TypeScript, Java)
