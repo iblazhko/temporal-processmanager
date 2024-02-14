@@ -89,11 +89,14 @@ shipment id:
   * otherwise the process should complete successfully straight away
 
 > Note that while from a business domain perspective outcome may be a failure
-> (shipment manifestation failed, collection booking failed etc), but from the
-> Temporal's point of view corresponding workflow is completed successfully,
-> i.e. all the steps in the process were executed, and there were no
-> unhandled exceptions. Hence all the workflows are expected to be marked as
-> "Completed" in the Termporal dashboard once the process finished.
+> (shipment manifestation failed, collection booking failed etc), from the
+> Temporal's point of view corresponding workflow is completed successfully
+> if all the steps in the process were executed and there were no unhandled
+> exceptions. Hence all the workflows are expected to be marked as "Completed"
+> in the Temporal dashboard once the process finished.
+> Look into the workflow result in the Temporal workflow  "Input and Results"
+> section to determine whether it was a success or failure from a business
+> domain perspective.
 
 Example:
 
@@ -133,7 +136,7 @@ on different aspects.
 
 Durable Execution concepts are better aligned with the *process* aspect;
 Event Sourcing is about representing state as a sequence of events, and that
-can be applied both to the business domain and to the techincal / infrastructure
+can be applied both to the business domain and to the technical / infrastructure
 domain.
 
 Temporal uses event sourcing internally, however from an application developer
