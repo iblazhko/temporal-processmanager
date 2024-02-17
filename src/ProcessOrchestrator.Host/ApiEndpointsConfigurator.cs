@@ -1,6 +1,7 @@
 namespace ProcessOrchestrator.Host;
 
 using System;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using ProcessOrchestrator.Temporal;
@@ -80,6 +81,14 @@ public static class ApiEndpointsConfigurator
         app.MapGet(
             "/{id}",
             async ([FromRoute] string id) =>
+                await GetShipmentProcessOutcome(id) is { } apiResult
+                    ? TypedResults.Ok(apiResult)
+                    : TypedResults.NotFound() as IResult
+        );
+
+        async Task<ShipmentProcessApiResult?> GetShipmentProcessOutcome(string id)
+        {
+            try
             {
                 var workflowHandle = temporalClient.GetWorkflowHandle(GetStarterWorkflowId(id));
                 var result = await workflowHandle.QueryAsync<ShipmentProcessResult>(
@@ -87,9 +96,35 @@ public static class ApiEndpointsConfigurator
                     []
                 );
 
-                await Task.Delay(TimeSpan.Zero);
-                return new { ShipmentId = id, Outcome = result };
+                return new ShipmentProcessApiResult
+                {
+                    ShipmentId = id,
+                    Status = result._Case,
+                    Outcome = result.Success,
+                    Failure = result.Failure
+                };
             }
-        );
+            catch (Temporalio.Exceptions.RpcException ex)
+                when (ex.Message.Contains(
+                        "sql: no rows in result set",
+                        StringComparison.OrdinalIgnoreCase
+                    )
+                )
+            {
+                return default;
+            }
+        }
+    }
+
+    public record ShipmentProcessApiResult
+    {
+        public string? ShipmentId { get; init; }
+        public string? Status { get; init; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public CompletedShipmentProcessOutcome? Outcome { get; init; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ShipmentProcessFailure? Failure { get; init; }
     }
 }

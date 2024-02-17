@@ -54,7 +54,9 @@ public abstract record ActivityResult<TSuccess, TFailure>
 {
     // ReSharper disable once InconsistentNaming
     public string _Case { get; init; }
+
     public TSuccess Success { get; init; }
+
     public TFailure Failure { get; init; }
 }
 
