@@ -128,6 +128,70 @@ Failure:
 
 ![Workflow Failure](./doc/Workflow-Result_Failure.png)
 
+Alternatively, use API to get the outcome of a workflow:
+
+```bash
+http get http://localhost:43210/15916b8a5d11456f9934ed91c2bd82c0
+```
+
+```json
+{
+    "outcome": {
+        "_Case": "Success",
+        "failure": null,
+        "success": {
+            "collectionBooking": {
+                "bookingReference": "15b3b83d50424394aad8e8d1af060c49",
+                "carrierId": "c62bee763e7a4ce387dda5eb11678815",
+                "locationReference": "9cfb222b6c674df587330b66431c9b2a"
+            },
+            "manifestedLegs": [
+                {
+                    "carrierId": "c62bee763e7a4ce387dda5eb11678815",
+                    "labelsUrl": "http://somewhere.net/shipment-documents/15916b8a5d11456f9934ed91c2bd82c0_c62bee763e7a4ce387dda5eb11678815",
+                    "trackingNumbers": [
+                        "1804af1e0ec9404f8cfc2c8adfbacb11",
+                        "63b9d1ca4a874d5e8d6df68ff8fe9789"
+                    ]
+                }
+            ],
+            "shipmentDocuments": {
+                "combinedDocumentUrl": "http://somewhere.net/shipment-documents/15916b8a5d11456f9934ed91c2bd82c0_combined_document",
+                "invoiceUrl": null,
+                "labelsUrl": "http://somewhere.net/shipment-documents/15916b8a5d11456f9934ed91c2bd82c0_labels",
+                "receiptUrl": "http://somewhere.net/shipment-documents/15916b8a5d11456f9934ed91c2bd82c0_receipt"
+            },
+            "shipmentId": "15916b8a5d11456f9934ed91c2bd82c0"
+        }
+    },
+    "shipmentId": "15916b8a5d11456f9934ed91c2bd82c0"
+}
+```
+
+```bash
+http get http://localhost:43210/15916b8a5d11456f9934ed91c2bd82c1
+```
+
+```json
+{
+    "outcome": {
+        "_Case": "Failure",
+        "failure": {
+            "faults": [
+                {
+                    "description": "Carrier manifestation failed",
+                    "errors": [
+                        "1.2.3: Manifestation failed"
+                    ]
+                }
+            ]
+        },
+        "success": null
+    },
+    "shipmentId": "15916b8a5d11456f9934ed91c2bd82c1"
+}
+```
+
 ## Comparing with custom Event Sourced implementation
 
 While both Event Sourcing and Durable Execution can help with implementing a

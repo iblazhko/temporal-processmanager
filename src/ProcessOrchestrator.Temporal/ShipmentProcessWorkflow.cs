@@ -7,16 +7,12 @@ using Temporalio.Workflows;
 [Workflow]
 public class ShipmentProcessWorkflow
 {
+    public const string OutcomeQueryName = "outcome";
+
+    private ShipmentProcessResult result = new() { _Case = "Pending" };
+
     // Note that even if the shipmentProcessResult is Failure, the Temporal workflow
     // will be marked as Completed. This means that the process has finished and there were no internal faults.
-    //
-    // We may consider marking Temporal workflow as Failed, to make it easier to find failed shipments
-    // in Temporal dashboard, but we need to make sure Temporal will not do unnecessary retries
-    // (e.g. by using RetryPolicy with appropriate NonRetryableErrorTypes, but this may not be enough
-    // to terminate the failed workflow completely).
-    //
-    // Disadvantage of this approach is that it will be harder to see failure details -
-    // result will not appear in the "Input and Results" dashboard section.
     [WorkflowRun]
     public async Task<ShipmentProcessResult> Run(ShipmentProcessRequest request)
     {
@@ -33,11 +29,12 @@ public class ShipmentProcessWorkflow
                 validRequest = validationResult.Success;
                 break;
             case nameof(ShipmentValidationResult.Failure):
-                return new ShipmentProcessResult
+                result = new ShipmentProcessResult
                 {
                     _Case = nameof(ShipmentProcessResult.Failure),
                     Failure = new ShipmentProcessFailure { Faults = [validationResult.Failure] }
                 };
+                return result;
             default:
                 return InconsistentInternalState();
         }
@@ -53,7 +50,7 @@ public class ShipmentProcessWorkflow
             TaskQueue = ProcessOrchestratorTaskQueue.TaskQueue
         };
 
-        var shipmentProcessResult = await (
+        result = await (
             processCategory switch
             {
                 ShipmentProcessCategory.Domestic
@@ -81,8 +78,11 @@ public class ShipmentProcessWorkflow
             }
         );
 
-        return shipmentProcessResult;
+        return result;
     }
+
+    [WorkflowQuery(name: OutcomeQueryName)]
+    public ShipmentProcessResult Query() => result;
 
     private static ShipmentProcessResult InconsistentInternalState(
         string description = "Inconsistent internal state"

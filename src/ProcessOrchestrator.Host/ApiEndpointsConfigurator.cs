@@ -12,6 +12,8 @@ public static class ApiEndpointsConfigurator
     private const string Carrier1 = "c62bee763e7a4ce387dda5eb11678815";
     private const string Carrier2 = "9d6d28f2fbee4e53aeac2c3b3ba98d28";
 
+    private static string GetStarterWorkflowId(string id) => $"{id}_starter";
+
     public static void AddApiEndpoints(this WebApplication app)
     {
         var temporalClient = app.Services.GetRequiredService<ITemporalClient>();
@@ -65,7 +67,10 @@ public static class ApiEndpointsConfigurator
 
                 var workflowHandle = await temporalClient.StartWorkflowAsync(
                     (ShipmentProcessWorkflow wf) => wf.Run(request),
-                    new(id: $"{id}_starter", taskQueue: ProcessOrchestratorTaskQueue.TaskQueue)
+                    new(
+                        id: GetStarterWorkflowId(id),
+                        taskQueue: ProcessOrchestratorTaskQueue.TaskQueue
+                    )
                 );
 
                 return new { ShipmentId = id, WorkflowId = workflowHandle.Id };
@@ -76,8 +81,14 @@ public static class ApiEndpointsConfigurator
             "/{id}",
             async ([FromRoute] string id) =>
             {
+                var workflowHandle = temporalClient.GetWorkflowHandle(GetStarterWorkflowId(id));
+                var result = await workflowHandle.QueryAsync<ShipmentProcessResult>(
+                    ShipmentProcessWorkflow.OutcomeQueryName,
+                    []
+                );
+
                 await Task.Delay(TimeSpan.Zero);
-                return new { ShipmentId = id };
+                return new { ShipmentId = id, Outcome = result };
             }
         );
     }
