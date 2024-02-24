@@ -1,50 +1,52 @@
 namespace SharedKernel.DTOs;
 
-// In this example it is expected that any DTO can be serialized to / deserialized from JSON
-// without any customizations in JSON serializer.
-//
-// In practice, this means that we can use primitive types (bool/int/double/decimal/string), arrays, dictionaries
-// with primitive key type, and classes/records, but cannot use anything more advanced. In particular, we cannot use
-// .net enums or DateTime / DateOnly / TimeOnly / DateTimeOffset.
-//
-// For enums we use string representation of .net enum member (name, not the underlying value).
-// For date and time we use string representation in ISO 8601 format.
-//
-// [Product types](https://en.wikipedia.org/wiki/Product_type) are represented as a .NET class or record, shape of
-// DTO can match shape of the domain model, but types of the DTO properties may need to be adjusted to satisfy
-// restrictions described above.
-//
-// [Sum types](https://en.wikipedia.org/wiki/Tagged_union) a.k.a. discriminated unions can be represented using
-// following structure (note that discrimination is not enforced):
-//
-//     public class UnionCaseResult
-//     {
-//         public string _Case { get; init; }
-//         public A Case1 { get; init; }
-//         public B Case2 { get; init; }
-//     }
-//
-// Instances of that class will look like this:
-//     {
-//         "_Case": "Case1",
-//         "Case1": { ... }
-//         "Case2": null
-//     }
-//     {
-//         "_Case": "Case2",
-//         "Case1": null,
-//         "Case2": { ... }
-//     }
-//
-// Once DTO is received as an input to workflow / activity / message consumer, it can be converted to a strongly-typed
-// domain model, if needed. Same applies to the workflow / activity output or message publishing -
-// if we use strongly-typed domain models internally, we need to convert domain model to a DTO, and use the DTO
-// as the output.
-//
-// DTOs are simple data containers and should not have any business logic. Related to that, DTOs should allow
-// initialization from incomplete / semantically invalid JSON, DTOs should only define *shape* of the data,
-// but should not have any restrictions about the data *content* or *format*. Any validations belong to domain model and
-// should be done separately, in a separate DTO -> domain model mapper, or in a separate validator.
+/*
+In this example it is expected that any DTO can be serialized to / deserialized from JSON
+without any customizations in JSON serializer.
+
+In practice, this means that we can use primitive types (bool/int/double/decimal/string), arrays, dictionaries
+with primitive key type, and classes/records, but cannot use anything more advanced. In particular, we cannot use
+.net enums or DateTime / DateOnly / TimeOnly / DateTimeOffset.
+
+For enums we use string representation of .net enum member (name, not the underlying value).
+For date and time we use string representation in ISO 8601 format.
+
+[Product types](https://en.wikipedia.org/wiki/Product_type) are represented as a .NET class or record, shape of
+DTO can match shape of the domain model, but types of the DTO properties may need to be adjusted to satisfy
+restrictions described above.
+
+[Sum types](https://en.wikipedia.org/wiki/Tagged_union) a.k.a. discriminated unions can be represented using
+following structure (note that discrimination is not enforced):
+
+    public class UnionCaseResult
+    {
+        public string _Case { get; init; }
+        public A Case1 { get; init; }
+        public B Case2 { get; init; }
+    }
+
+Instances of that class will look like this:
+    {
+        "_Case": "Case1",
+        "Case1": { ... }
+        "Case2": null
+    }
+    {
+        "_Case": "Case2",
+        "Case1": null,
+        "Case2": { ... }
+    }
+
+Once DTO is received as an input to workflow / activity / message consumer, it can be converted to a strongly-typed
+domain model, if needed. Same applies to the workflow / activity output or message publishing -
+if we use strongly-typed domain models internally, we need to convert domain model to a DTO, and use the DTO
+as the output.
+
+DTOs are simple data containers and should not have any business logic. Related to that, DTOs should allow
+initialization from incomplete / semantically invalid JSON, DTOs should only define *shape* of the data,
+but should not have any restrictions about the data *content* or *format*. Any validations belong to domain model and
+should be done separately, in a separate DTO -> domain model mapper, or in a separate validator.
+*/
 
 #nullable disable
 
@@ -140,7 +142,7 @@ public record CompletedShipmentProcessOutcome
 
  * Failure: System was not able to perform what it was expected from it. This is the problem we observe.
  * Fault: The cause of the failure.
- * Error: The mistake which caused the fault to occur. e.g, typos.
+ * Error: The condition which caused the fault to occur. e.g, missing or incorrectly formatted properties.
 
  Saying "failure" means we know something is wrong but we may not know the cause.
  Saying "fault" means we know the cause category, but may not know exactly why the fault occurred.

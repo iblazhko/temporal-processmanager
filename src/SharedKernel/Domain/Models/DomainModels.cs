@@ -1,6 +1,7 @@
 namespace SharedKernel.Domain.Models;
 
 using System;
+using OneOf;
 
 // ReSharper disable NotAccessedPositionalProperty.Global
 
@@ -89,4 +90,45 @@ public enum ShipmentDocumentType
 public enum ShipmentLegDocumentType
 {
     Labels
+}
+
+public record ShipmentCollectionBooking(
+    Guid CarrierId,
+    string BookingReference,
+    string LocationReference
+);
+
+public record ShipmentProcessOutcome(
+    string ShipmentId,
+    ManifestedShipmentLeg[] ManifestedLegs,
+    ShipmentDocuments ShipmentDocuments,
+    ShipmentCollectionBooking CollectionBooking
+);
+
+public record Failure(string Description, Fault[] Faults);
+
+public record Fault(string Description, string[] Errors);
+
+public sealed class ShipmentProcessResult
+    : OneOfBase<
+        ShipmentProcessResult.PendingResult,
+        ShipmentProcessResult.OutcomeResult,
+        ShipmentProcessResult.FailureResult
+    >
+{
+    public record PendingResult();
+
+    public record OutcomeResult(ShipmentProcessOutcome Outcome);
+
+    public record FailureResult(Failure Failure);
+
+    public static ShipmentProcessResult Pending() => new(new PendingResult());
+
+    public static ShipmentProcessResult Success(ShipmentProcessOutcome outcome) =>
+        new(new OutcomeResult(outcome));
+
+    public static ShipmentProcessResult Failure(Failure failure) => new(new FailureResult(failure));
+
+    private ShipmentProcessResult(OneOf<PendingResult, OutcomeResult, FailureResult> input)
+        : base(input) { }
 }

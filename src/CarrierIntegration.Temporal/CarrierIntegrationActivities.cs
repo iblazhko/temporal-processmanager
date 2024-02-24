@@ -22,7 +22,11 @@ internal class CarrierIntegrationActivities
                             new Fault
                             {
                                 Description = "Carrier manifestation failed",
-                                Errors = ["1.2.3: Manifestation failed"]
+                                Errors =
+                                [
+                                    "1.2.3: Address line 1 missing",
+                                    "1.2.5: Postal code missing"
+                                ]
                             }
                         ]
                     }
@@ -66,7 +70,7 @@ internal class CarrierIntegrationActivities
                             new Fault
                             {
                                 Description = "Carrier collection booking failed",
-                                Errors = ["2.3.4: Collection booking failed"]
+                                Errors = ["2.3.4: Collection not possible on the requested day"]
                             }
                         ]
                     }

@@ -67,22 +67,20 @@ in Docker Compose:
 ```
 
 Trigger the process - use example below as-is or use a random guid for
-shipment id.
+shipment id. Real application can use a message consumer or whatever method is
+applicable to trigger a process.
 
 ```bash
 http post http://localhost:43210/{shipmentId}
 ```
 
-Real application can use a message consumer or whatever method is applicable
-to trigger a process.
-
 To emulate various aspects of the process, code in this example looks into
 shipment id:
 
 * Shipment process classification:
-    * id starting with `1` triggers "domestic" process
-    * id starting with `2` triggers "international with paperless trade" process
-    * otherwise "international" process is used
+  * id starting with `1` triggers "domestic" process
+  * id starting with `2` triggers "international with paperless trade" process
+  * otherwise "international" process is used
 * Failures handling:
   * id ending with `1` triggers process that fails at manifestation stage
   * id ending with `2` triggers process that fails at collection booking stage
@@ -94,8 +92,8 @@ shipment id:
 > if all the steps in the process were executed and there were no unhandled
 > exceptions. Hence all the workflows are expected to be marked as "Completed"
 > in the Temporal dashboard once the process finished.
-> Look into the workflow result in the Temporal workflow  "Input and Results"
-> section to determine whether it was a success or failure from a business
+> Look into the workflow result in the Temporal workflow "Input and Results"
+> section to determine whether it was a success or failure from the business
 > domain perspective.
 
 Example:
@@ -128,7 +126,9 @@ Failure:
 
 ![Workflow Failure](./doc/Workflow-Result_Failure.png)
 
-Alternatively, use API to get the outcome of a workflow:
+Alternatively, use API to get the outcome of a workflow.
+
+Example of a successful outcome:
 
 ```bash
 http get http://localhost:43210/15916b8a5d11456f9934ed91c2bd82c0
@@ -164,6 +164,8 @@ http get http://localhost:43210/15916b8a5d11456f9934ed91c2bd82c0
 }
 ```
 
+Example of a failure:
+
 ```bash
 http get http://localhost:43210/15916b8a5d11456f9934ed91c2bd82c1
 ```
@@ -191,8 +193,8 @@ While both Event Sourcing and Durable Execution can help with implementing a
 durable long-running process, these are two different concepts, and they focus
 on different aspects.
 
-Durable Execution concepts are better aligned with the *process* aspect;
-Event Sourcing is about representing state as a sequence of events, and that
+Durable Execution concepts are better aligned with the *processing* aspect;
+Event Sourcing is about *representing state as a sequence of events*, and that
 can be applied both to the business domain and to the technical / infrastructure
 domain.
 
@@ -209,9 +211,10 @@ events:
 3. Temporal workflows may or may not be aligned with business domain entities.
 
 OTOH, the record of the fact that Temporal activity or workflow completed can be
-treated as a business domain event if we squint a little, although it may be
-less explicit compared to a dedicated domain event stored in an entity event
-stream.
+treated as a business domain event if we squint a little, although it will be
+much less explicit compared to a dedicated domain event stored in an entity
+event stream, and it would be considered a code smell from Event Sourcing
+point of view.
 
 Custom durable process implementation that uses event sourcing may be better
 aligned with the business domain but requires much more investment in
@@ -245,9 +248,9 @@ My initial impressions after trying out Temporal are very positive.
   * Can search for workflows by various criteria, and see the workflow state
   * Observability is built-in, can see timeline with workflows / activities
     connections, and inputs/outputs
+* Supports multiple programming languages  
 * Fully managed [cloud hosting](https://temporal.io/cloud) is available;
   can use self-hosting option as well
-* Supports multiple programming languages  
 * [Commercial support](https://docs.temporal.io/cloud/support) available
 * Good [documentation](https://docs.temporal.io/dev-guide) and
   [training materials](https://learn.temporal.io/courses/)
@@ -261,11 +264,21 @@ Points below are not a criticism of Temporal as such, just some observations.
   the Temporal .NET SDK seems to be stable already.
 * Determinism is expected from a workflow implementation code, but it is not
   enforced or validated (to the best of my knowledge). Writing deterministic
-  code is quite natural to someone familiar with functional programming
-  concepts, but if an application developer is coming from a procedural / OOP
-  background, some adaptation may be required.
+  code is quite natural to someone familiar with functional programming,
+  but if an application developer is coming from a procedural / OOP background,
+  some adaptation may be required.
+* Workflows and Activities inputs/outputs, and Workflows internal state
+  variables must use serialization-friendly types. There is no Temporal .NET
+  SDK documentation available yet where it would have been described
+  (to the best of my knowledge), but this is implied by the fact that inputs,
+  outputs, and internal variables are serialized and persisted at every
+  workflow step. Using type that is not fully compatible with JSON serializer
+  (e.g. `OneOf` that otherwise would have been extremely useful) may lead to
+  hidden errors that may only be exposed at runtime. This example is
+  [designed carefully](https://github.com/iblazhko/temporal-processmanager/blob/main/src/SharedKernel/DTOs/DtoModels.cs#L3-L49)
+  to avoid issues with serialization/deserialization.
 * Temporal is very chatty by design, activities input/output and state at each
-  checkpoint are serialised and persisted in the workflow's
+  checkpoint are serialized and persisted in the workflow's
   [events history](https://docs.temporal.io/workflows#event-history);
   large number of activities in a workflow may introduce latency and increase
   storage space requirements. Production application would need to evaluate that
@@ -281,7 +294,7 @@ There are other frameworks available that implement Durable Execution concept:
 
 * [Azure Durable Functions](https://learn.microsoft.com/en-us/azure/azure-functions/durable/) (.NET, Python, JavaScript)
 * [Convex](https://www.convex.dev/) (TypeScript)
-* [LittleHorse](https://littlehorse.dev/) (Go, Java, Python; .NET support coming in 0.6.0)
+* [LittleHorse](https://littlehorse.dev/) (Go, Java, Python, .NET)
 * [Orkes](https://orkes.io/) (.NET, Go, Java, Clojure, Python, JavaScript)
 * [Rama](https://redplanetlabs.com/) (Java, Clojure)
 * [Restate](https://restate.dev/) (TypeScript, Java)

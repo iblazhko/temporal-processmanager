@@ -81,7 +81,7 @@ public class InternationalShipmentProcessWorkflow
                 return InconsistentInternalState;
         }
 
-        var shipmentCollectionBookingRequest = new ShipmentLegCollectionBookingRequest()
+        var shipmentCollectionBookingRequest = new ShipmentLegCollectionBookingRequest
         {
             ShipmentId = manifestedShipment.ShipmentId,
             Leg = manifestedShipment.Legs.First(),
