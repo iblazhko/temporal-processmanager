@@ -45,11 +45,14 @@ internal class ShipmentCollectionBookingActivities
                     _Case = nameof(ShipmentLegCollectionBookingSchedulingCheckResult.Failure),
                     Failure = new ShipmentProcessFailure
                     {
-                        Faults = [new ValidationFault
-                        {
-                            Description = "Shipment cannot be scheduled for collection booking",
-                            Errors = ["3.4.5 Missed booking cut-off time"]
-                        }]
+                        Faults =
+                        [
+                            new ValidationFault
+                            {
+                                Description = "Shipment cannot be scheduled for collection booking",
+                                Errors = ["3.4.5 Missed booking cut-off time"]
+                            }
+                        ]
                     }
                 }
             );

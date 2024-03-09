@@ -55,8 +55,7 @@ public class InternationalShipmentWithPaperlessTradeProcessWorkflow
         };
 
         var shipmentManifestationResult = await Workflow.ExecuteChildWorkflowAsync(
-            (ShipmentManifestationWorkflow wf) =>
-                wf.ManifestShipment(shipmentManifestationRequest),
+            (ShipmentManifestationWorkflow wf) => wf.ManifestShipment(shipmentManifestationRequest),
             new ChildWorkflowOptions
             {
                 Id = $"{request.ShipmentId}_manifestation",
@@ -155,15 +154,12 @@ public class InternationalShipmentWithPaperlessTradeProcessWorkflow
             {
                 ShipmentId = request.ShipmentId,
                 ManifestedLegs = manifestedShipment
-                    .Legs.Select(
-                        x =>
-                            new ManifestedShipmentLegOutcome
-                            {
-                                CarrierId = x.CarrierId,
-                                TrackingNumbers = x.TrackingNumbers,
-                                LabelsUrl = x.LabelsDocument
-                            }
-                    )
+                    .Legs.Select(x => new ManifestedShipmentLegOutcome
+                    {
+                        CarrierId = x.CarrierId,
+                        TrackingNumbers = x.TrackingNumbers,
+                        LabelsUrl = x.LabelsDocument
+                    })
                     .ToArray(),
                 ShipmentDocuments = shipmentDocuments,
                 CollectionBooking = shipmentCollection

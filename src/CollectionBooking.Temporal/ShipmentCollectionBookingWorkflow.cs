@@ -13,10 +13,7 @@ public class ShipmentCollectionBookingWorkflow
     )
     {
         var now = Workflow.UtcNow;
-        var schedulingRequest = request with
-        {
-            UtcNow = now.ToString("O")
-        };
+        var schedulingRequest = request with { UtcNow = now.ToString("O") };
 
         // TODO: This is arguably should be a part of ShipmentProcessWorkflow
         // there is no point in doing manifestation if collection cannot be booked
@@ -63,7 +60,8 @@ public class ShipmentCollectionBookingWorkflow
         }
 
         var bookAt = DateTime.Parse(collectionSchedule.BookAt);
-        if (bookAt > now) await Workflow.DelayAsync(bookAt - now);
+        if (bookAt > now)
+            await Workflow.DelayAsync(bookAt - now);
         // else
         //   TODO: Consider failing if `bookAt` is too far behind `now`
 
@@ -85,6 +83,9 @@ public class ShipmentCollectionBookingWorkflow
         new()
         {
             _Case = nameof(ShipmentLegCollectionBookingResult.Failure),
-            Failure = new ShipmentProcessFailure { Faults = [ new() { Description = "Inconsistent internal state" }] }
+            Failure = new ShipmentProcessFailure
+            {
+                Faults = [new() { Description = "Inconsistent internal state" }]
+            }
         };
 }

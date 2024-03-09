@@ -81,7 +81,8 @@ public static class StringBuilderExtensions
     public static StringBuilder AppendDictionarySettings<TKey, TValue>(
         this StringBuilder stringBuilder,
         Expression<Func<Dictionary<TKey, TValue>>> propertyExpression
-    ) where TKey : notnull
+    )
+        where TKey : notnull
     {
         var body = (MemberExpression)propertyExpression.Body;
         var dictionary = propertyExpression.Compile()();

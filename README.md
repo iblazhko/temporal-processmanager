@@ -186,6 +186,53 @@ http get http://localhost:43210/15916b8a5d11456f9934ed91c2bd82c1
     "status": "Failure"
 }
 ```
+### Load Test
+
+To see how the system behaves under load, we can inject large number of
+shipments using following command (adjust number of workers, shipments,
+and delay as needed):
+
+```powershell
+./load_test.ps1 -WorkersCount 10 -WorkerShipmentsCount 1000 -WorkerDelayMilliseconds 50
+```
+
+This example starts 10 workers in parallel, each worker will trigger 1000
+shipment processes waiting 50ms between operations.
+
+Monitor Temporal dashboard `http://localhost:8080/` to see the progress.
+
+Once all the workflows are completed, there wil be around 78K workflows listed
+in dashboard.
+
+Local run shows that CPU consumption is high for Temporal server and
+Postgres containers, Temporal worker container CPU consumption is lower however
+this may be due to the fact that this solution uses large number of Temporal
+worker hosts, so load is distributed between them.
+
+Compared to custom Event Sourced implementation, CPU consumption and I/O load
+seem to be much higher.
+
+Worth mentioning that there is a large number of internal errors in
+Temporal logs, such as
+
+```
+Workflow task not found
+History client encountered error
+Workflow task already started
+Activity task already started
+Fail to process task
+```
+
+however it looks like Termporal server was able to recover - all workflows are
+marked as Completed eventually.
+
+Under high load, it may take a long time to complete a workflow - could be
+over 20min.
+
+> **Note**: Code in this example is not optimised for performance.
+> In a real deployment we could consider using Temporal cluster with multiple
+> Temporal server instances. Also Postgres instance may need tuning /
+> scaling up / scaling out.
 
 ## Comparing with custom Event Sourced implementation
 

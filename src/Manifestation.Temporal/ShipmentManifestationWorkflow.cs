@@ -67,6 +67,9 @@ public class ShipmentManifestationWorkflow
         new()
         {
             _Case = nameof(ShipmentManifestationResult.Failure),
-            Failure = new ShipmentProcessFailure { Faults = [ new() { Description = "Inconsistent internal state" }] }
+            Failure = new ShipmentProcessFailure
+            {
+                Faults = [new() { Description = "Inconsistent internal state" }]
+            }
         };
 }
