@@ -16,7 +16,7 @@ public static class InfrastructureWaitPolicy
 
         var policy = Policy
             .HandleResult(false)
-            .WaitAndRetry(Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(1), 5));
+            .WaitAndRetry(Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(3), 10));
 
         return policy.Execute(() => IsInfrastructureAvailable(settings));
     }

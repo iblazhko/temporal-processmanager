@@ -28,7 +28,7 @@ following structure (note that discrimination is not enforced):
 Instances of that class will look like this:
     {
         "_Case": "Case1",
-        "Case1": { ... }
+        "Case1": { ... },
         "Case2": null
     }
     {
