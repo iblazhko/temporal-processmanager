@@ -2,7 +2,7 @@ services:
   # Infrastructure
 
   postgres:
-    image: postgres:16.3
+    image: postgres:16.4
     environment:
       - POSTGRES_PASSWORD=temporal
       - POSTGRES_USER=temporal
@@ -37,12 +37,12 @@ services:
   # Temporal
 
   temporal:
-    image: temporalio/auto-setup:1.23
+    image: temporalio/auto-setup:1.24
     depends_on:
       - postgres
       - elasticsearch
     environment:
-      - DB=postgresql
+      - DB=postgres12
       - DB_PORT=5432
       - POSTGRES_USER=temporal
       - POSTGRES_PWD=temporal
@@ -59,7 +59,7 @@ services:
       - ./temporal-dynamicconfig:/etc/temporal/config/dynamicconfig
 
   temporal-admin-tools:
-    image: temporalio/admin-tools:1.23
+    image: temporalio/admin-tools:1.24
     depends_on:
       - temporal
     environment:
@@ -70,7 +70,7 @@ services:
     tty: true
 
   temporal-ui:
-    image: temporalio/ui:2.23.0
+    image: temporalio/ui:2.29.2
     depends_on:
       - temporal
     environment:

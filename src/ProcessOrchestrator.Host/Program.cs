@@ -25,6 +25,7 @@ builder
     .AddWorkflow<DomesticShipmentProcessWorkflow>()
     .AddWorkflow<InternationalShipmentProcessWorkflow>()
     .AddWorkflow<InternationalShipmentWithPaperlessTradeProcessWorkflow>();
+
 builder.Services.AddTemporalClient(
     clientTargetHost: settings.Temporal.ServerAddress,
     clientNamespace: settings.Temporal.Namespace

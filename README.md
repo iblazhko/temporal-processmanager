@@ -9,8 +9,8 @@ there for the description of motivation and business domain.
 
 While implementing a durable long-running process from scratch can be
 a lot of fun, in a production development environment for most companies
-it does not makes much sense to spend significant resources on implementing
-and maintaining such infrastructure code. There are multiple out of the box
+it does not make much sense to spend significant resources on implementing
+and maintaining such infrastructure code. There are multiple out-of-the-box
 solutions available that allow application developers to focus on writing code
 that implements business requirements.
 
@@ -90,7 +90,7 @@ shipment id:
 > (shipment manifestation failed, collection booking failed etc), from the
 > Temporal's point of view corresponding workflow is completed successfully
 > if all the steps in the process were executed and there were no unhandled
-> exceptions. Hence all the workflows are expected to be marked as "Completed"
+> exceptions. Hence, all the workflows are expected to be marked as "Completed"
 > in the Temporal dashboard once the process finished.
 > Look into the workflow result in the Temporal workflow "Input and Results"
 > section to determine whether it was a success or failure from the business
