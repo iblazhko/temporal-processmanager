@@ -307,8 +307,8 @@ My initial impressions after trying out Temporal are very positive.
 Points below are not a criticism of Temporal as such, just some observations.
 
 * At the moment, .NET support in Temporal is not as good as for other languages
-  (e.g. no tutorials and no 101 course), but documentation is improving and
-  the Temporal .NET SDK seems to be stable already.
+  (e.g. no 101 course), but documentation is improving and the Temporal 
+  .NET SDK seems to be stable already.
 * Determinism is expected from a workflow implementation code, but it is not
   enforced or validated (to the best of my knowledge). Writing deterministic
   code is quite natural to someone familiar with functional programming,
