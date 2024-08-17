@@ -223,7 +223,7 @@ Activity task already started
 Fail to process task
 ```
 
-however it looks like Termporal server was able to recover - all workflows are
+however it looks like Temporal server was able to recover - all workflows are
 marked as Completed eventually.
 
 Under high load, it may take a long time to complete a workflow - could be
@@ -266,7 +266,7 @@ point of view.
 Custom durable process implementation that uses event sourcing may be better
 aligned with the business domain but requires much more investment in
 implementing infrastructure aspects like retries and timeouts; also defining and
-maintaining the process definition as a whole may be non trivial. And here we
+maintaining the process definition as a whole may be non-trivial. And here we
 may have a problem opposite to the one described above - in a custom event
 sourced implementation we may need events not directly related to the business
 domain to implement technical aspects.
@@ -289,7 +289,7 @@ My initial impressions after trying out Temporal are very positive.
     workflow versioning
 * Easy to implement business requirements
   * Process is defined directly in code
-  * Process is easy to compose from workflows and activities
+  * Process is easy to compose of workflows and activities
 * Easy to manage and monitor progress
   * Admin interface (web and cli) is available out of the box
   * Can search for workflows by various criteria, and see the workflow state
