@@ -29,11 +29,9 @@ public class ShipmentProcessWorkflow
                 validRequest = validationResult.Success;
                 break;
             case nameof(ShipmentValidationResult.Failure):
-                result = new ShipmentProcessResult
-                {
-                    _Case = nameof(ShipmentProcessResult.Failure),
-                    Failure = new ShipmentProcessFailure { Faults = [validationResult.Failure] }
-                };
+                result = ShipmentProcessResult.CreateFailure(
+                    new ShipmentProcessFailure { Faults = [validationResult.Failure] }
+                );
                 return result;
             default:
                 return InconsistentInternalState();
@@ -87,9 +85,7 @@ public class ShipmentProcessWorkflow
     private static ShipmentProcessResult InconsistentInternalState(
         string description = "Inconsistent internal state"
     ) =>
-        new()
-        {
-            _Case = nameof(ShipmentProcessResult.Failure),
-            Failure = new ShipmentProcessFailure { Faults = [new() { Description = description }] }
-        };
+        ShipmentProcessResult.CreateFailure(
+            new ShipmentProcessFailure { Faults = [new Fault { Description = description }] }
+        );
 }

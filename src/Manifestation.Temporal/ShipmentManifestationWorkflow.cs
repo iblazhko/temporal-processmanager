@@ -40,36 +40,30 @@ public class ShipmentManifestationWorkflow
                     manifestedLegs.Add(legManifestationResult.Success);
                     break;
                 case nameof(ShipmentLegManifestationResult.Failure):
-                    return new ShipmentManifestationResult
-                    {
-                        _Case = nameof(ShipmentManifestationResult.Failure),
-                        Failure = legManifestationResult.Failure
-                    };
+                    return ShipmentManifestationResult.CreateFailure(
+                        legManifestationResult.Failure
+                    );
                 default:
                     return InconsistentInternalState;
             }
         }
 
-        return new ShipmentManifestationResult
-        {
-            _Case = nameof(ShipmentManifestationResult.Success),
-            Success = new ManifestedShipment
+        return ShipmentManifestationResult.CreateSuccess(
+            new ManifestedShipment
             {
                 ShipmentId = request.ShipmentId,
                 Legs = manifestedLegs.ToArray(),
                 CollectionDate = request.CollectionDate,
                 TimeZone = request.TimeZone
             }
-        };
+        );
     }
 
     private static readonly ShipmentManifestationResult InconsistentInternalState =
-        new()
-        {
-            _Case = nameof(ShipmentManifestationResult.Failure),
-            Failure = new ShipmentProcessFailure
+        ShipmentManifestationResult.CreateFailure(
+            new ShipmentProcessFailure
             {
-                Faults = [new() { Description = "Inconsistent internal state" }]
+                Faults = [new Fault { Description = "Inconsistent internal state" }]
             }
-        };
+        );
 }

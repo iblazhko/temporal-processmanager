@@ -8,14 +8,11 @@ internal class CarrierIntegrationActivities
     [Activity]
     public Task<ShipmentLegManifestationResult> ManifestShipmentLeg(
         ShipmentLegManifestationRequest request
-    )
-    {
-        return Task.FromResult(
+    ) =>
+        Task.FromResult(
             request.ShipmentId.EndsWith('1')
-                ? new ShipmentLegManifestationResult
-                {
-                    _Case = nameof(ShipmentLegManifestationResult.Failure),
-                    Failure = new ShipmentProcessFailure
+                ? ShipmentLegManifestationResult.CreateFailure(
+                    new ShipmentProcessFailure
                     {
                         Faults =
                         [
@@ -30,11 +27,9 @@ internal class CarrierIntegrationActivities
                             }
                         ]
                     }
-                }
-                : new ShipmentLegManifestationResult
-                {
-                    _Case = nameof(ShipmentLegManifestationResult.Success),
-                    Success = new ManifestedShipmentLeg
+                )
+                : ShipmentLegManifestationResult.CreateSuccess(
+                    new ManifestedShipmentLeg
                     {
                         CarrierId = request.Leg.CarrierId,
                         Sender = request.Leg.Sender,
@@ -49,21 +44,17 @@ internal class CarrierIntegrationActivities
                             $"http://somewhere.net/shipment-documents/{request.ShipmentId}_{request.Leg.CarrierId}"
                         ).ToString()
                     }
-                }
+                )
         );
-    }
 
     [Activity]
     public Task<ShipmentLegCollectionBookingResult> BookShipmentLegCollection(
         ShipmentLegCollectionBookingRequest request
-    )
-    {
-        return Task.FromResult(
+    ) =>
+        Task.FromResult(
             request.ShipmentId.EndsWith('2')
-                ? new ShipmentLegCollectionBookingResult
-                {
-                    _Case = nameof(ShipmentLegCollectionBookingResult.Failure),
-                    Failure = new ShipmentProcessFailure
+                ? ShipmentLegCollectionBookingResult.CreateFailure(
+                    new ShipmentProcessFailure
                     {
                         Faults =
                         [
@@ -74,17 +65,14 @@ internal class CarrierIntegrationActivities
                             }
                         ]
                     }
-                }
-                : new ShipmentLegCollectionBookingResult
-                {
-                    _Case = nameof(ShipmentLegCollectionBookingResult.Success),
-                    Success = new ShipmentCollectionBooking
+                )
+                : ShipmentLegCollectionBookingResult.CreateSuccess(
+                    new ShipmentCollectionBooking
                     {
                         CarrierId = request.Leg.CarrierId,
                         BookingReference = Guid.NewGuid().ToString("N"),
                         LocationReference = Guid.NewGuid().ToString("N")
                     }
-                }
+                )
         );
-    }
 }

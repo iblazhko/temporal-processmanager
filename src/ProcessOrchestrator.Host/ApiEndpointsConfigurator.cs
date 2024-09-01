@@ -118,6 +118,7 @@ public static class ApiEndpointsConfigurator
 
     public record ShipmentProcessApiResult
     {
+        // ReSharper disable UnusedAutoPropertyAccessor.Global
         public string? ShipmentId { get; init; }
         public string? Status { get; init; }
 
@@ -126,5 +127,6 @@ public static class ApiEndpointsConfigurator
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public ShipmentProcessFailure? Failure { get; init; }
+        // ReSharper restore UnusedAutoPropertyAccessor.Global
     }
 }

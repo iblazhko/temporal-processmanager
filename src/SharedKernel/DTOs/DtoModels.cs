@@ -60,6 +60,24 @@ public abstract record ActivityResult<TSuccess, TFailure>
     public TSuccess Success { get; init; }
 
     public TFailure Failure { get; init; }
+
+    public static bool IsSuccess(ActivityResult<TSuccess, TFailure> result)
+    {
+        if (result is null)
+            throw new ArgumentNullException(nameof(result));
+
+        var isSuccess = result._Case == nameof(Success);
+        var isFailure = result._Case == nameof(Failure);
+        if (!(isSuccess || isFailure))
+            throw new ArgumentException($"Case {result._Case} is not supported", nameof(result));
+
+        return isSuccess;
+    }
+
+    public static bool IsFailure(ActivityResult<TSuccess, TFailure> result)
+    {
+        return !IsSuccess(result);
+    }
 }
 
 // Represents an empty input / output
@@ -150,7 +168,7 @@ public record CompletedShipmentProcessOutcome
 
  https://stackoverflow.com/a/47963772
 
- Given that the process is composed from nested workflows, the line between failure and fault may be blurry:
+ Given that the process is composed of nested workflows, the line between failure and fault may be blurry:
  shipment process failure is caused by failures in nested workflows or activities, and each of those failures
  can be considered a fault from the point of view of the top level process.
 */
@@ -168,10 +186,32 @@ public record Fault
 
 public record ValidationFault : Fault;
 
-public record ShipmentValidationResult : ActivityResult<ShipmentProcessRequest, ValidationFault> { }
+public record ShipmentValidationResult : ActivityResult<ShipmentProcessRequest, ValidationFault>
+{
+    public static ShipmentValidationResult CreateSuccess(ShipmentProcessRequest success)
+    {
+        return new ShipmentValidationResult { _Case = nameof(Success), Success = success };
+    }
+
+    public static ShipmentValidationResult CreateFailure(ValidationFault failure)
+    {
+        return new ShipmentValidationResult { _Case = nameof(Failure), Failure = failure };
+    }
+}
 
 public record ShipmentProcessResult
-    : ActivityResult<CompletedShipmentProcessOutcome, ShipmentProcessFailure> { }
+    : ActivityResult<CompletedShipmentProcessOutcome, ShipmentProcessFailure>
+{
+    public static ShipmentProcessResult CreateSuccess(CompletedShipmentProcessOutcome success)
+    {
+        return new ShipmentProcessResult { _Case = nameof(Success), Success = success };
+    }
+
+    public static ShipmentProcessResult CreateFailure(ShipmentProcessFailure failure)
+    {
+        return new ShipmentProcessResult { _Case = nameof(Failure), Failure = failure };
+    }
+}
 
 public record ShipmentManifestationRequest : ShipmentProcessRequest
 {
@@ -187,7 +227,18 @@ public record ManifestedShipment
 }
 
 public record ShipmentManifestationResult
-    : ActivityResult<ManifestedShipment, ShipmentProcessFailure> { }
+    : ActivityResult<ManifestedShipment, ShipmentProcessFailure>
+{
+    public static ShipmentManifestationResult CreateSuccess(ManifestedShipment success)
+    {
+        return new ShipmentManifestationResult { _Case = nameof(Success), Success = success };
+    }
+
+    public static ShipmentManifestationResult CreateFailure(ShipmentProcessFailure failure)
+    {
+        return new ShipmentManifestationResult { _Case = nameof(Failure), Failure = failure };
+    }
+}
 
 public record ShipmentLegManifestationRequest
 {
@@ -198,12 +249,46 @@ public record ShipmentLegManifestationRequest
 }
 
 public record ShipmentLegManifestationResult
-    : ActivityResult<ManifestedShipmentLeg, ShipmentProcessFailure> { }
+    : ActivityResult<ManifestedShipmentLeg, ShipmentProcessFailure>
+{
+    public static ShipmentLegManifestationResult CreateSuccess(ManifestedShipmentLeg success)
+    {
+        return new ShipmentLegManifestationResult { _Case = nameof(Success), Success = success };
+    }
+
+    public static ShipmentLegManifestationResult CreateFailure(ShipmentProcessFailure failure)
+    {
+        return new ShipmentLegManifestationResult { _Case = nameof(Failure), Failure = failure };
+    }
+}
 
 public record PaperlessTradeDocumentsGenerationRequest : ShipmentProcessRequest { }
 
 public record PaperlessTradeDocumentsGenerationResult
-    : ActivityResult<PaperlessTradeDocuments, ShipmentProcessFailure> { }
+    : ActivityResult<PaperlessTradeDocuments, ShipmentProcessFailure>
+{
+    public static PaperlessTradeDocumentsGenerationResult CreateSuccess(
+        PaperlessTradeDocuments success
+    )
+    {
+        return new PaperlessTradeDocumentsGenerationResult
+        {
+            _Case = nameof(Success),
+            Success = success
+        };
+    }
+
+    public static PaperlessTradeDocumentsGenerationResult CreateFailure(
+        ShipmentProcessFailure failure
+    )
+    {
+        return new PaperlessTradeDocumentsGenerationResult
+        {
+            _Case = nameof(Failure),
+            Failure = failure
+        };
+    }
+}
 
 public record ShipmentDocumentsGenerationRequest : ManifestedShipment
 {
@@ -211,7 +296,18 @@ public record ShipmentDocumentsGenerationRequest : ManifestedShipment
 }
 
 public record ShipmentDocumentsGenerationResult
-    : ActivityResult<ShipmentDocuments, ShipmentProcessFailure> { }
+    : ActivityResult<ShipmentDocuments, ShipmentProcessFailure>
+{
+    public static ShipmentDocumentsGenerationResult CreateSuccess(ShipmentDocuments success)
+    {
+        return new ShipmentDocumentsGenerationResult { _Case = nameof(Success), Success = success };
+    }
+
+    public static ShipmentDocumentsGenerationResult CreateFailure(ShipmentProcessFailure failure)
+    {
+        return new ShipmentDocumentsGenerationResult { _Case = nameof(Failure), Failure = failure };
+    }
+}
 
 public record ShipmentLegCollectionBookingRequest : ShipmentLegManifestationRequest
 {
@@ -220,10 +316,75 @@ public record ShipmentLegCollectionBookingRequest : ShipmentLegManifestationRequ
 }
 
 public record ShipmentLegCollectionBookingSchedulingCheckResult
-    : ActivityResult<Unit, ShipmentProcessFailure> { }
+    : ActivityResult<Unit, ShipmentProcessFailure>
+{
+    public static ShipmentLegCollectionBookingSchedulingCheckResult CreateSuccess()
+    {
+        return new ShipmentLegCollectionBookingSchedulingCheckResult
+        {
+            _Case = nameof(Success),
+            Success = new Unit()
+        };
+    }
+
+    public static ShipmentLegCollectionBookingSchedulingCheckResult CreateFailure(
+        ShipmentProcessFailure failure
+    )
+    {
+        return new ShipmentLegCollectionBookingSchedulingCheckResult
+        {
+            _Case = nameof(Failure),
+            Failure = failure
+        };
+    }
+}
 
 public record ShipmentLegCollectionBookingSchedulingResult
-    : ActivityResult<ShipmentCollectionSchedule, ShipmentProcessFailure> { }
+    : ActivityResult<ShipmentCollectionSchedule, ShipmentProcessFailure>
+{
+    public static ShipmentLegCollectionBookingSchedulingResult CreateSuccess(
+        ShipmentCollectionSchedule success
+    )
+    {
+        return new ShipmentLegCollectionBookingSchedulingResult
+        {
+            _Case = nameof(Success),
+            Success = success
+        };
+    }
+
+    public static ShipmentLegCollectionBookingSchedulingResult CreateFailure(
+        ShipmentProcessFailure failure
+    )
+    {
+        return new ShipmentLegCollectionBookingSchedulingResult
+        {
+            _Case = nameof(Failure),
+            Failure = failure
+        };
+    }
+}
 
 public record ShipmentLegCollectionBookingResult
-    : ActivityResult<ShipmentCollectionBooking, ShipmentProcessFailure> { }
+    : ActivityResult<ShipmentCollectionBooking, ShipmentProcessFailure>
+{
+    public static ShipmentLegCollectionBookingResult CreateSuccess(
+        ShipmentCollectionBooking success
+    )
+    {
+        return new ShipmentLegCollectionBookingResult
+        {
+            _Case = nameof(Success),
+            Success = success
+        };
+    }
+
+    public static ShipmentLegCollectionBookingResult CreateFailure(ShipmentProcessFailure failure)
+    {
+        return new ShipmentLegCollectionBookingResult
+        {
+            _Case = nameof(Failure),
+            Failure = failure
+        };
+    }
+}

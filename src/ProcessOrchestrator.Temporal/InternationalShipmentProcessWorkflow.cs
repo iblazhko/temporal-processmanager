@@ -37,11 +37,7 @@ public class InternationalShipmentProcessWorkflow
                 manifestedShipment = shipmentManifestationResult.Success;
                 break;
             case nameof(ShipmentManifestationResult.Failure):
-                return new ShipmentProcessResult
-                {
-                    _Case = nameof(ShipmentProcessResult.Failure),
-                    Failure = shipmentManifestationResult.Failure
-                };
+                return ShipmentProcessResult.CreateFailure(shipmentManifestationResult.Failure);
             default:
                 return InconsistentInternalState;
         }
@@ -71,11 +67,9 @@ public class InternationalShipmentProcessWorkflow
                 shipmentDocuments = shipmentDocumentsGenerationResult.Success;
                 break;
             case nameof(ShipmentDocumentsGenerationResult.Failure):
-                return new ShipmentProcessResult
-                {
-                    _Case = nameof(ShipmentProcessResult.Failure),
-                    Failure = shipmentDocumentsGenerationResult.Failure
-                };
+                return ShipmentProcessResult.CreateFailure(
+                    shipmentDocumentsGenerationResult.Failure
+                );
             default:
                 return InconsistentInternalState;
         }
@@ -104,19 +98,13 @@ public class InternationalShipmentProcessWorkflow
                 shipmentCollection = shipmentCollectionBookingResult.Success;
                 break;
             case nameof(ShipmentLegCollectionBookingResult.Failure):
-                return new ShipmentProcessResult
-                {
-                    _Case = nameof(ShipmentProcessResult.Failure),
-                    Failure = shipmentCollectionBookingResult.Failure
-                };
+                return ShipmentProcessResult.CreateFailure(shipmentCollectionBookingResult.Failure);
             default:
                 return InconsistentInternalState;
         }
 
-        return new ShipmentProcessResult
-        {
-            _Case = nameof(ShipmentProcessResult.Success),
-            Success = new CompletedShipmentProcessOutcome
+        return ShipmentProcessResult.CreateSuccess(
+            new CompletedShipmentProcessOutcome
             {
                 ShipmentId = request.ShipmentId,
                 ManifestedLegs = manifestedShipment
@@ -130,16 +118,14 @@ public class InternationalShipmentProcessWorkflow
                 ShipmentDocuments = shipmentDocuments,
                 CollectionBooking = shipmentCollection
             }
-        };
+        );
     }
 
     private static readonly ShipmentProcessResult InconsistentInternalState =
-        new()
-        {
-            _Case = nameof(ShipmentProcessResult.Failure),
-            Failure = new ShipmentProcessFailure
+        ShipmentProcessResult.CreateFailure(
+            new ShipmentProcessFailure
             {
-                Faults = [new() { Description = "Inconsistent internal state" }]
+                Faults = [new Fault { Description = "Inconsistent internal state" }]
             }
-        };
+        );
 }

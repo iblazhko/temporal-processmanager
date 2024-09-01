@@ -13,36 +13,28 @@ internal class ShipmentProcessOrchestrationActivities
         var validationErrors = new List<string>();
 
         if (string.IsNullOrWhiteSpace(command?.ShipmentId))
-        {
             validationErrors.Add("ShipmentId must be specified");
-        }
 
-        if (command?.Legs == null || command?.Legs?.Length == 0 || command?.Legs?.Length > 2)
-        {
+        if (command?.Legs == null || command.Legs?.Length == 0 || command.Legs?.Length > 2)
             validationErrors.Add("Shipment must have 1 or 2 legs");
-        }
 
         var result = validationErrors.Any()
-            ? new ShipmentValidationResult
-            {
-                _Case = nameof(ShipmentValidationResult.Failure),
-                Failure = new ValidationFault
+            ? ShipmentValidationResult.CreateFailure(
+                new ValidationFault
                 {
                     Description = "Invalid request",
                     Errors = validationErrors.ToArray()
                 }
-            }
-            : new ShipmentValidationResult
-            {
-                _Case = nameof(ShipmentValidationResult.Success),
-                Success = new ShipmentProcessRequest
+            )
+            : ShipmentValidationResult.CreateSuccess(
+                new ShipmentProcessRequest
                 {
                     ShipmentId = command!.ShipmentId,
                     Legs = command.Legs,
                     CollectionDate = command.CollectionDate,
                     TimeZone = command.TimeZone
                 }
-            };
+            );
 
         return Task.FromResult(result);
     }

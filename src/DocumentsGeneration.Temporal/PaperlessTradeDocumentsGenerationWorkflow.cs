@@ -17,10 +17,8 @@ public class PaperlessTradeDocumentsGenerationWorkflow
             new ActivityOptions { StartToCloseTimeout = TimeSpan.FromSeconds(5) }
         );
 
-        return new PaperlessTradeDocumentsGenerationResult
-        {
-            _Case = nameof(ShipmentDocumentsGenerationResult.Success),
-            Success = new PaperlessTradeDocuments { InvoiceUrl = invoiceUrl, }
-        };
+        return PaperlessTradeDocumentsGenerationResult.CreateSuccess(
+            new PaperlessTradeDocuments { InvoiceUrl = invoiceUrl }
+        );
     }
 }

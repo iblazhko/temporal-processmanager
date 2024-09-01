@@ -36,11 +36,7 @@ public class InternationalShipmentWithPaperlessTradeProcessWorkflow
                 ptDocumentUrl = ptResult.Success.InvoiceUrl;
                 break;
             case nameof(PaperlessTradeDocumentsGenerationResult.Failure):
-                return new ShipmentProcessResult
-                {
-                    _Case = nameof(ShipmentProcessResult.Failure),
-                    Failure = ptResult.Failure
-                };
+                return ShipmentProcessResult.CreateFailure(ptResult.Failure);
             default:
                 return InconsistentInternalState;
         }
@@ -71,11 +67,7 @@ public class InternationalShipmentWithPaperlessTradeProcessWorkflow
                 manifestedShipment = shipmentManifestationResult.Success;
                 break;
             case nameof(ShipmentManifestationResult.Failure):
-                return new ShipmentProcessResult
-                {
-                    _Case = nameof(ShipmentProcessResult.Failure),
-                    Failure = shipmentManifestationResult.Failure
-                };
+                return ShipmentProcessResult.CreateFailure(shipmentManifestationResult.Failure);
             default:
                 return InconsistentInternalState;
         }
@@ -105,16 +97,14 @@ public class InternationalShipmentWithPaperlessTradeProcessWorkflow
                 shipmentDocuments = shipmentDocumentsGenerationResult.Success;
                 break;
             case nameof(ShipmentDocumentsGenerationResult.Failure):
-                return new ShipmentProcessResult
-                {
-                    _Case = nameof(ShipmentProcessResult.Failure),
-                    Failure = shipmentDocumentsGenerationResult.Failure
-                };
+                return ShipmentProcessResult.CreateFailure(
+                    shipmentDocumentsGenerationResult.Failure
+                );
             default:
                 return InconsistentInternalState;
         }
 
-        var shipmentCollectionBookingRequest = new ShipmentLegCollectionBookingRequest()
+        var shipmentCollectionBookingRequest = new ShipmentLegCollectionBookingRequest
         {
             ShipmentId = manifestedShipment.ShipmentId,
             Leg = manifestedShipment.Legs.First(),
@@ -138,19 +128,13 @@ public class InternationalShipmentWithPaperlessTradeProcessWorkflow
                 shipmentCollection = shipmentCollectionBookingResult.Success;
                 break;
             case nameof(ShipmentLegCollectionBookingResult.Failure):
-                return new ShipmentProcessResult
-                {
-                    _Case = nameof(ShipmentProcessResult.Failure),
-                    Failure = shipmentCollectionBookingResult.Failure
-                };
+                return ShipmentProcessResult.CreateFailure(shipmentCollectionBookingResult.Failure);
             default:
                 return InconsistentInternalState;
         }
 
-        return new ShipmentProcessResult
-        {
-            _Case = nameof(ShipmentProcessResult.Success),
-            Success = new CompletedShipmentProcessOutcome
+        return ShipmentProcessResult.CreateSuccess(
+            new CompletedShipmentProcessOutcome
             {
                 ShipmentId = request.ShipmentId,
                 ManifestedLegs = manifestedShipment
@@ -164,16 +148,14 @@ public class InternationalShipmentWithPaperlessTradeProcessWorkflow
                 ShipmentDocuments = shipmentDocuments,
                 CollectionBooking = shipmentCollection
             }
-        };
+        );
     }
 
     private static readonly ShipmentProcessResult InconsistentInternalState =
-        new()
-        {
-            _Case = nameof(ShipmentProcessResult.Failure),
-            Failure = new ShipmentProcessFailure
+        ShipmentProcessResult.CreateFailure(
+            new ShipmentProcessFailure
             {
-                Faults = [new() { Description = "Inconsistent internal state" }]
+                Faults = [new Fault { Description = "Inconsistent internal state" }]
             }
-        };
+        );
 }

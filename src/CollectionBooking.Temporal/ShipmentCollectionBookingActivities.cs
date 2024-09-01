@@ -16,17 +16,15 @@ internal class ShipmentCollectionBookingActivities
         var bookAt = now.AddSeconds(5);
 
         return Task.FromResult(
-            new ShipmentLegCollectionBookingSchedulingResult
-            {
-                _Case = nameof(ShipmentLegCollectionBookingSchedulingResult.Success),
-                Success = new ShipmentCollectionSchedule
+            ShipmentLegCollectionBookingSchedulingResult.CreateSuccess(
+                new ShipmentCollectionSchedule
                 {
                     ShipmentId = request.ShipmentId,
                     CarrierId = request.Leg.CarrierId,
                     BookAt = bookAt.ToString("O"),
                     BookingIsDue = false
                 }
-            }
+            )
         );
     }
 
@@ -37,13 +35,12 @@ internal class ShipmentCollectionBookingActivities
     {
         // Real application would use a domain service that do some collection-specific validations
         var canBeScheduledForCollectionBooking = true;
-        if (!canBeScheduledForCollectionBooking)
-        {
-            return Task.FromResult(
-                new ShipmentLegCollectionBookingSchedulingCheckResult
-                {
-                    _Case = nameof(ShipmentLegCollectionBookingSchedulingCheckResult.Failure),
-                    Failure = new ShipmentProcessFailure
+
+        return Task.FromResult(
+            canBeScheduledForCollectionBooking
+                ? ShipmentLegCollectionBookingSchedulingCheckResult.CreateSuccess()
+                : ShipmentLegCollectionBookingSchedulingCheckResult.CreateFailure(
+                    new ShipmentProcessFailure
                     {
                         Faults =
                         [
@@ -54,16 +51,7 @@ internal class ShipmentCollectionBookingActivities
                             }
                         ]
                     }
-                }
-            );
-        }
-
-        return Task.FromResult(
-            new ShipmentLegCollectionBookingSchedulingCheckResult
-            {
-                _Case = nameof(ShipmentLegCollectionBookingSchedulingCheckResult.Success),
-                Success = new Unit()
-            }
+                )
         );
     }
 }

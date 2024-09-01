@@ -6,9 +6,9 @@ using System.Text;
 
 public class TemporalSettings
 {
-    public string ServerAddress { get; set; }
-    public string Namespace { get; set; }
-    public bool HealthCheck { get; set; }
+    public string ServerAddress { get; init; }
+    public string Namespace { get; init; }
+    public bool HealthCheck { get; init; }
 
     public override string ToString()
     {

@@ -1,7 +1,5 @@
 namespace SharedInfrastructure.Configuration;
 
-using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
 
@@ -51,9 +49,9 @@ public static class StringBuilderExtensions
     )
     {
         var body = (MemberExpression)propertyExpression.Body;
-        var timeSpan = propertyExpression.Compile()();
+        var value = propertyExpression.Compile()();
 
-        var formattedValue = timeSpan != default ? timeSpan.ToString() : DefaultValue;
+        var formattedValue = value != default ? value.ToString() : DefaultValue;
         stringBuilder.AppendLine($"{Indent}{body.Member.Name}: {formattedValue}");
         return stringBuilder;
     }

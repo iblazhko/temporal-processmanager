@@ -34,16 +34,14 @@ public class ShipmentDocumentsGenerationWorkflow
             new ActivityOptions { StartToCloseTimeout = TimeSpan.FromSeconds(5) }
         );
 
-        return new ShipmentDocumentsGenerationResult
-        {
-            _Case = nameof(ShipmentDocumentsGenerationResult.Success),
-            Success = new ShipmentDocuments
+        return ShipmentDocumentsGenerationResult.CreateSuccess(
+            new ShipmentDocuments
             {
                 LabelsUrl = labelsUrl,
                 InvoiceUrl = invoiceUrl,
                 ReceiptUrl = receiptUrl,
                 CombinedDocumentUrl = combinedDocumentUrl
             }
-        };
+        );
     }
 }

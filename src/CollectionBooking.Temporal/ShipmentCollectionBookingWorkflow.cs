@@ -28,11 +28,9 @@ public class ShipmentCollectionBookingWorkflow
             case nameof(ShipmentLegCollectionBookingSchedulingCheckResult.Success):
                 break;
             case nameof(ShipmentLegCollectionBookingSchedulingCheckResult.Failure):
-                return new ShipmentLegCollectionBookingResult
-                {
-                    _Case = nameof(ShipmentLegCollectionBookingResult.Failure),
-                    Failure = canBeScheduledForCollectionBooking.Failure
-                };
+                return ShipmentLegCollectionBookingResult.CreateFailure(
+                    canBeScheduledForCollectionBooking.Failure
+                );
             default:
                 return InconsistentInternalState;
         }
@@ -50,11 +48,7 @@ public class ShipmentCollectionBookingWorkflow
                 collectionSchedule = schedulingResult.Success;
                 break;
             case nameof(ShipmentLegCollectionBookingSchedulingResult.Failure):
-                return new ShipmentLegCollectionBookingResult
-                {
-                    _Case = nameof(ShipmentLegCollectionBookingResult.Failure),
-                    Failure = schedulingResult.Failure
-                };
+                return ShipmentLegCollectionBookingResult.CreateFailure(schedulingResult.Failure);
             default:
                 return InconsistentInternalState;
         }
@@ -65,9 +59,10 @@ public class ShipmentCollectionBookingWorkflow
         // else
         //   TODO: Consider failing if `bookAt` is too far behind `now`
 
-        // TODO: Consider checking current Workflow.UtcNow and checking if we are not late
+        // TODO: Consider checking current Workflow.UtcNow and checking if we are not too late
         // (due to e.g. Temporal delaying workflow for longer than we have asked for)
         // if (Workflow.UtcNow - bookAt > threshold) ...
+
         return await Workflow.ExecuteChildWorkflowAsync(
             (ShipmentLegCarrierCollectionBookingWorkflow wf) =>
                 wf.BookShipmentLegCollection(request),
@@ -80,12 +75,10 @@ public class ShipmentCollectionBookingWorkflow
     }
 
     private static readonly ShipmentLegCollectionBookingResult InconsistentInternalState =
-        new()
-        {
-            _Case = nameof(ShipmentLegCollectionBookingResult.Failure),
-            Failure = new ShipmentProcessFailure
+        ShipmentLegCollectionBookingResult.CreateFailure(
+            new ShipmentProcessFailure
             {
-                Faults = [new() { Description = "Inconsistent internal state" }]
+                Faults = [new Fault { Description = "Inconsistent internal state" }]
             }
-        };
+        );
 }
