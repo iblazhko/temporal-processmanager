@@ -16,7 +16,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
 
   elasticsearch:
-    image: elasticsearch:8.17.0
+    image: elasticsearch:8.17.2
     environment:
       - cluster.routing.allocation.disk.threshold_enabled=true
       - cluster.routing.allocation.disk.watermark.low=512mb
@@ -37,7 +37,7 @@ services:
   # Temporal
 
   temporal:
-    image: temporalio/auto-setup:1.26
+    image: temporalio/auto-setup:1.27
     depends_on:
       - postgres
       - elasticsearch
@@ -70,7 +70,7 @@ services:
     tty: true
 
   temporal-ui:
-    image: temporalio/ui:2.34.0
+    image: temporalio/ui:2.35.1
     depends_on:
       - temporal
     environment:

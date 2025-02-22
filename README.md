@@ -61,7 +61,7 @@ probably end up with fewer hosts.
 
 Assuming that following prerequisites are installed:
 
--   .NET 8 SDK: <https://dotnet.microsoft.com/download>
+-   .NET 9 SDK: <https://dotnet.microsoft.com/download>
 -   PowerShell: <https://github.com/powershell/powershell>
 -   Docker with Docker Compose: <https://www.docker.com/>,
     or Podman <https://podman.io/> with
