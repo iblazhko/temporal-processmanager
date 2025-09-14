@@ -2,7 +2,7 @@ services:
   # Infrastructure
 
   postgres:
-    image: postgres:16.6
+    image: postgres:17.6
     environment:
       - POSTGRES_PASSWORD=temporal
       - POSTGRES_USER=temporal
@@ -16,7 +16,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
 
   elasticsearch:
-    image: elasticsearch:8.17.2
+    image: elasticsearch:9.1.3
     environment:
       - cluster.routing.allocation.disk.threshold_enabled=true
       - cluster.routing.allocation.disk.watermark.low=512mb
@@ -37,7 +37,7 @@ services:
   # Temporal
 
   temporal:
-    image: temporalio/auto-setup:1.27
+    image: temporalio/auto-setup:1.28
     depends_on:
       - postgres
       - elasticsearch
@@ -59,7 +59,7 @@ services:
       - ./temporal-dynamicconfig:/etc/temporal/config/dynamicconfig
 
   temporal-admin-tools:
-    image: temporalio/admin-tools:1.26
+    image: temporalio/admin-tools:1.28
     depends_on:
       - temporal
     environment:
@@ -70,7 +70,7 @@ services:
     tty: true
 
   temporal-ui:
-    image: temporalio/ui:2.35.1
+    image: temporalio/ui:2.40.0
     depends_on:
       - temporal
     environment:
